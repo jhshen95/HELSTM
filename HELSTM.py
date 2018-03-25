@@ -340,7 +340,7 @@ class HELSTMLayer(MergeLayer):
             mask = T.ones_like(time_input).dimshuffle(0,1,'x')
 
         if self.model != 'HELSTM':
-            out_attention = event_input
+            out_attention = event_input#if not using HELSTM, out_attention is of no use but still need to assign a value to complete sequences
         sequences = [input, time_input, out_attention, mask]
         step_fun = step_masked
 
