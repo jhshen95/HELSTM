@@ -7,7 +7,7 @@ import numpy as np
 import theano
 import theano.tensor as T 
 import lasagne
-from EPLSTM import EPLSTMLayer, EPLSTMGate
+from HELSTM import HELSTMLayer, HELSTMGate
 from lasagne.layers.recurrent import Gate
 from lasagne.init import Initializer
 from lasagne.utils import floatX
@@ -31,13 +31,13 @@ def load_data_all():
     global ICU_test_data
     global ICU_train_data
     global ICU_valid_data
-    path = "/data/"
+    data_path = "/data/"
     file_name = "ICUIn_test_1000.h5"
-    ICU_test_data = load_data(path, file_name)
+    ICU_test_data = load_data(data_path, file_name)
     file_name = "ICUIn_train_1000.h5"
-    ICU_train_data = load_data(path, file_name)
+    ICU_train_data = load_data(data_path, file_name)
     file_name = "ICUIn_valid_1000.h5"
-    ICU_valid_data = load_data(path, file_name) 
+    ICU_valid_data = load_data(data_path, file_name) 
 
 def get_data(set_name, kind):
     global ICU_test_data
@@ -88,7 +88,7 @@ def get_rnn(event_var, feature_idx, feature_value, mask_var, time_var, arch_size
     if model_type=="LSTM":
         l_in_merge = lasagne.layers.ConcatLayer([l_in_merge, lasagne.layers.ReshapeLayer(l_t, [-1, seq_len, 1])], axis=2)
 
-    l_forward = EPLSTMLayer(incoming=l_in_merge, time_input=l_t, event_input=embed_event, num_units=arch_size[1],
+    l_forward = HELSTMLayer(incoming=l_in_merge, time_input=l_t, event_input=embed_event, num_units=arch_size[1],
                             num_attention=num_attention, model=model_type, mask_input=l_mask,
                             ingate=Gate(),
                             forgetgate=Gate(),
@@ -98,7 +98,7 @@ def get_rnn(event_var, feature_idx, feature_value, mask_var, time_var, arch_size
                             grad_clipping=GRAD_CLIP,
                             bn=bn,
                             only_return_final=True,
-                            timegate=EPLSTMGate(
+                            timegate=HELSTMGate(
                                      Period=ExponentialUniformInit(init_period),
                                      Shift=lasagne.init.Uniform((0., 1000)),
                                      On_End=lasagne.init.Constant(0.05)))
@@ -210,7 +210,7 @@ def valid(train_times, valid_data, test_fn, valid_file):
         
 def model(embed, hidden, attention, _period, model_type, data_set, name, seed):
     np.random.seed(seed)
-    if model_type!="EPLSTM":
+    if model_type!="HELSTM":
         attention = 0
     prefix = data_set+"_"
     num_attention = attention
@@ -308,4 +308,4 @@ def choose_model(embed, hidden, attention, period, model_type, name, seed):
 
 if __name__ == '__main__':
     load_data_all()
-    choose_model(32, 64, 32, (1., 2.), "EPLSTM", "exp_EPLSTM", 1)
+    choose_model(32, 64, 32, (1., 2.), "HELSTM", "exp_HELSTM", 1)
