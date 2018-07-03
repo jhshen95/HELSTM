@@ -1,0 +1,10 @@
+# non-time feature
+^diagnoses_icd*
+^patients*
+^procedures_icd*
+^cptevents*
+
+# other
+^datetimeevents.226515$
+^datetimeevents.226724$
+^microbioevents*
